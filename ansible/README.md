@@ -69,7 +69,7 @@ ansible-playbook playbook.yml --check --ask-vault-pass
 
 ## Ce que fait le playbook
 
-1. Crée `/data/app/deploy-ppc/` sur l'edge si absent
+1. Crée `/data/app/` sur l'edge si absent
 2. Synchronise le repo local (rsync, sans `.env` ni `.git`)
 3. Génère les fichiers `.env` à partir des `host_vars` (via ansible-vault)
 4. Lance `docker compose pull && docker compose up -d` pour `ppc`, `dbsync`, `promtail`

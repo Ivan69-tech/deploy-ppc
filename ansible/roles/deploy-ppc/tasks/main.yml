@@ -5,13 +5,13 @@
   ansible.builtin.file:
     path: /data/app
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: Ensure deploy_path exists
   ansible.builtin.file:
     path: "{{ deploy_path }}"
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 # ── 2. Synchroniser les fichiers du repo (rsync, exclut .env et .git) ─────────
 
@@ -28,39 +28,65 @@
       - "--exclude=dbsync/timestamp/"
       - "--exclude=promtail/positions/"
 
-# ── 3. Déployer les fichiers .env (générés depuis les host_vars / vault) ──────
+# ── 3. Initialiser le timestamp dbsync (seulement si absent) ─────────────────
+
+- name: Ensure dbsync/timestamp directory exists
+  ansible.builtin.file:
+    path: "{{ deploy_path }}/dbsync/timestamp"
+    state: directory
+    mode: "0755"
+
+- name: Init last_successful_time.json if not present
+  ansible.builtin.copy:
+    content: '{ "last_successful_time": "2026-03-10 00:00:01.000000" }'
+    dest: "{{ deploy_path }}/dbsync/timestamp/last_successful_time.json"
+    force: false # ne pas écraser si le fichier existe déjà
+    mode: "0644"
+
+# ── 4. Déployer les fichiers .env (depuis les host_vars / vault) ──────────────
 
 - name: Deploy ppc .env
-  ansible.builtin.template:
-    src: ppc.env.j2
+  ansible.builtin.copy:
+    content: |
+      SITE_NAME={{ SITE_NAME }}
+      POSTGRES_HOST={{ POSTGRES_HOST }}
+      POSTGRES_PORT={{ POSTGRES_PORT }}
+      POSTGRES_DATABASE={{ POSTGRES_DATABASE }}
+      POSTGRES_USER={{ POSTGRES_USER }}
+      POSTGRES_PASSWORD={{ POSTGRES_PASSWORD }}
     dest: "{{ deploy_path }}/ppc/.env"
-    mode: '0600'
+    mode: "0600"
 
 - name: Deploy dbsync .env
-  ansible.builtin.template:
-    src: dbsync.env.j2
+  ansible.builtin.copy:
+    content: |
+      POSTGRES_HOST={{ POSTGRES_HOST }}
+      POSTGRES_PORT={{ POSTGRES_PORT }}
+      POSTGRES_DATABASE={{ POSTGRES_DATABASE }}
+      POSTGRES_USER={{ POSTGRES_USER }}
+      POSTGRES_PASSWORD={{ POSTGRES_PASSWORD }}
     dest: "{{ deploy_path }}/dbsync/.env"
-    mode: '0600'
+    mode: "0600"
 
-# ── 4. Docker compose pull + up pour chaque service ──────────────────────────
+- name: Deploy promtail .env
+  ansible.builtin.copy:
+    content: "SITE_NAME={{ SITE_NAME }}\n"
+    dest: "{{ deploy_path }}/promtail/.env"
+    mode: "0600"
+
+# ── 5. Docker compose pull + up pour chaque service ──────────────────────────
 
 - name: Docker compose pull + up (ppc)
-  community.docker.docker_compose_v2:
-    project_src: "{{ deploy_path }}/ppc"
-    pull: always
-    state: present
-  register: ppc_result
+  ansible.builtin.shell: docker-compose pull && docker-compose down && docker-compose up -d
+  args:
+    chdir: "{{ deploy_path }}/ppc"
 
 - name: Docker compose pull + up (dbsync)
-  community.docker.docker_compose_v2:
-    project_src: "{{ deploy_path }}/dbsync"
-    pull: always
-    state: present
-  register: dbsync_result
+  ansible.builtin.shell: docker-compose pull && docker-compose down && docker-compose up -d
+  args:
+    chdir: "{{ deploy_path }}/dbsync"
 
 - name: Docker compose pull + up (promtail)
-  community.docker.docker_compose_v2:
-    project_src: "{{ deploy_path }}/promtail"
-    pull: always
-    state: present
-  register: promtail_result
+  ansible.builtin.shell: docker-compose pull && docker-compose down && docker-compose up -d
+  args:
+    chdir: "{{ deploy_path }}/promtail"

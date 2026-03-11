@@ -1,3 +1,4 @@
 **/.env
 ansible/inventory/host_vars/**/vault.yml
+ansible/.vault_pass
 *.retry
