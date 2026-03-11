@@ -8,4 +8,4 @@ Repo de déploiement de :
 
 ## prérequis
 
-La machine qui lance le scripot de déploiement doit avoir un accès tailscale.
+La machine qui lance le script de déploiement doit avoir un accès tailscale.
