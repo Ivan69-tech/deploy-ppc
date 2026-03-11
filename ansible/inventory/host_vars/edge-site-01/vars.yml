@@ -1,0 +1,5 @@
+---
+# Variables non-sensibles pour edge-site-01
+# Adapter site_name à chaque edge
+
+site_name: edge-site-01

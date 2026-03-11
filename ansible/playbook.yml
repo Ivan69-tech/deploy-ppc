@@ -1,0 +1,11 @@
+---
+- name: Deploy PPC stack on edge machines
+  hosts: edges
+  become: true
+
+  # Charger les vault si présents (secrets Postgres, etc.)
+  # Lancer avec : ansible-playbook playbook.yml --ask-vault-pass
+  # ou           : ansible-playbook playbook.yml --vault-password-file ~/.vault_pass
+
+  roles:
+    - deploy-ppc

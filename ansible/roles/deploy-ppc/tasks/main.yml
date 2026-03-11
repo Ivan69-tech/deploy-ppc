@@ -1,0 +1,66 @@
+---
+# ── 1. Préparer le répertoire de destination ──────────────────────────────────
+
+- name: Ensure /data/app directory exists
+  ansible.builtin.file:
+    path: /data/app
+    state: directory
+    mode: '0755'
+
+- name: Ensure deploy_path exists
+  ansible.builtin.file:
+    path: "{{ deploy_path }}"
+    state: directory
+    mode: '0755'
+
+# ── 2. Synchroniser les fichiers du repo (rsync, exclut .env et .git) ─────────
+
+- name: Sync repo files to edge
+  ansible.posix.synchronize:
+    src: "{{ playbook_dir }}/../"
+    dest: "{{ deploy_path }}/"
+    recursive: true
+    delete: true
+    rsync_opts:
+      - "--exclude=.git"
+      - "--exclude=**/.env"
+      - "--exclude=ansible/"
+      - "--exclude=dbsync/timestamp/"
+      - "--exclude=promtail/positions/"
+
+# ── 3. Déployer les fichiers .env (générés depuis les host_vars / vault) ──────
+
+- name: Deploy ppc .env
+  ansible.builtin.template:
+    src: ppc.env.j2
+    dest: "{{ deploy_path }}/ppc/.env"
+    mode: '0600'
+
+- name: Deploy dbsync .env
+  ansible.builtin.template:
+    src: dbsync.env.j2
+    dest: "{{ deploy_path }}/dbsync/.env"
+    mode: '0600'
+
+# ── 4. Docker compose pull + up pour chaque service ──────────────────────────
+
+- name: Docker compose pull + up (ppc)
+  community.docker.docker_compose_v2:
+    project_src: "{{ deploy_path }}/ppc"
+    pull: always
+    state: present
+  register: ppc_result
+
+- name: Docker compose pull + up (dbsync)
+  community.docker.docker_compose_v2:
+    project_src: "{{ deploy_path }}/dbsync"
+    pull: always
+    state: present
+  register: dbsync_result
+
+- name: Docker compose pull + up (promtail)
+  community.docker.docker_compose_v2:
+    project_src: "{{ deploy_path }}/promtail"
+    pull: always
+    state: present
+  register: promtail_result
