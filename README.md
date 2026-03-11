@@ -9,3 +9,4 @@ Repo de déploiement de :
 ## prérequis
 
 La machine qui lance le script de déploiement doit avoir un accès tailscale.
+Les edges doivent avoir les droits gitlab pour ce répo + un nom edge tailscale.
