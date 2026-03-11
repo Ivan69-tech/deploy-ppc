@@ -1,0 +1,13 @@
+services:
+  dbsync:
+    image: ivandecharbo/dbsync:latest
+    container_name: dbsync
+    volumes:
+      - ./config.yaml:/data/config.yaml:ro
+      - ./.env:/app/.env:ro
+      - ./timestamp:/data/timestamp
+      - /data/ppc/db:/data/sqlite:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    command: ["python", "main.py", "--config_path", "/data/config.yaml"]

@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  ppc:
+    image: ivandecharbo/ppc:latest
+    container_name: ppc
+    working_dir: /app
+    command: ["python", "main.py", "--config", "/app/config.yaml"]
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONPATH=/app/
+    volumes:
+      - ./config.yaml:/app/config.yaml
+      - /data/ppc:/data/ppc
+      - ./.env:/data/ppc/.env
+    restart: unless-stopped
+    dns:
+      - 100.100.100.100
+    networks:
+      - ppc-net
+
+  ppc-frontend:
+    image: ivandecharbo/ppc-frontend:latest
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./frontend_config.yaml:/usr/share/nginx/html/config.yaml:ro
+    restart: unless-stopped
+    networks:
+      - ppc-net
+
+  pv-simulation:
+    image: ivandecharbo/pv-simulation:latest
+    ports:
+      - "5521:5521"
+    restart: unless-stopped
+    networks:
+      - ppc-net
+
+networks:
+  ppc-net:
+    driver: bridge

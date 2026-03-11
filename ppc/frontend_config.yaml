@@ -1,0 +1,3 @@
+dashboard: pv
+api_url: /api
+ppc_host: http://ppc:8008

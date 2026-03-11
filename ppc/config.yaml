@@ -1,0 +1,29 @@
+site:
+  name: ${site_name}
+api:
+  env_path: /data/ppc/.env
+  host: 0.0.0.0
+  port: 8008
+application:
+  db_dir: /data/ppc/db
+  process_interval: 1.0
+  save_interval: 20
+drivers:
+  - host: pv-simulation
+    id: pv
+    poll_interval: 5
+    port: 5521
+    timeout_s: 30
+  - id: psn
+    poll_interval: 60
+    psn_min_price_eur_per_mwh: 2.0
+    timeout_s: 30
+    url: http://server-spotapi:8000
+functions:
+  - id: psn
+logging:
+  level: INFO
+  log_dir: /data/ppc/logs
+server:
+  host: localhost
+  port: 5020
