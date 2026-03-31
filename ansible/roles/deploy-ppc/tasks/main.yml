@@ -54,6 +54,9 @@
       POSTGRES_DATABASE={{ POSTGRES_DATABASE }}
       POSTGRES_USER={{ POSTGRES_USER }}
       POSTGRES_PASSWORD={{ POSTGRES_PASSWORD }}
+
+      RESEND_API_KEY={{ RESEND_API_KEY }}
+      RESEND_FROM_EMAIL={{ RESEND_FROM_EMAIL }}
     dest: "{{ deploy_path }}/ppc/.env"
     mode: "0600"
 
@@ -77,16 +80,16 @@
 # ── 5. Docker compose pull + up pour chaque service ──────────────────────────
 
 - name: Docker compose pull + up (ppc)
-  ansible.builtin.shell: docker-compose pull && docker-compose down && docker-compose up -d
+  ansible.builtin.shell: docker compose pull && docker compose down && docker compose up -d
   args:
     chdir: "{{ deploy_path }}/ppc"
 
 - name: Docker compose pull + up (dbsync)
-  ansible.builtin.shell: docker-compose pull && docker-compose down && docker-compose up -d
+  ansible.builtin.shell: docker compose pull && docker compose down && docker compose up -d
   args:
     chdir: "{{ deploy_path }}/dbsync"
 
 - name: Docker compose pull + up (promtail)
-  ansible.builtin.shell: docker-compose pull && docker-compose down && docker-compose up -d
+  ansible.builtin.shell: docker compose pull && docker compose down && docker compose up -d
   args:
     chdir: "{{ deploy_path }}/promtail"

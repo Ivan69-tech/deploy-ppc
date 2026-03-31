@@ -10,7 +10,7 @@ services:
       - ./positions:/positions
       - /data/ppc/logs:/var/log/ppc:ro
     environment:
-      - SITE_NAME=${site_name}
+      - SITE_NAME=${SITE_NAME}
     command: -config.file=/etc/promtail/promtail.yml -config.expand-env=true
     dns:
       - 100.100.100.100
