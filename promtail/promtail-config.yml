@@ -15,5 +15,5 @@ scrape_configs:
           - localhost
         labels:
           job: ppc
-          host: ${site_name}
+          host: ${SITE_NAME}
           __path__: /var/log/ppc/*.log

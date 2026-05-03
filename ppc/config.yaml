@@ -1,5 +1,5 @@
 site:
-  name: ${site_name}
+  name: ${SITE_NAME}
 api:
   env_path: /data/ppc/.env
   host: 0.0.0.0
