@@ -31,14 +31,6 @@ services:
     networks:
       - ppc-net
 
-  pv-simulation:
-    image: ivandecharbo/pv-simulation:latest
-    ports:
-      - "5521:5521"
-    restart: unless-stopped
-    networks:
-      - ppc-net
-
 networks:
   ppc-net:
-    driver: bridge
+    external: true

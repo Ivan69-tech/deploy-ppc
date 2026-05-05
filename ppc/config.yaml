@@ -1,29 +1,37 @@
 site:
   name: ${SITE_NAME}
+alerting:
+  alert_delay_minutes: 10
+  emails: []
 api:
   env_path: /data/ppc/.env
   host: 0.0.0.0
   port: 8008
 application:
   db_dir: /data/ppc/db
-  process_interval: 1.0
-  save_interval: 20
+  process_interval: 2.0
+  save_interval: 10
 drivers:
-  - host: pv-simulation
+  - host: trajectory-bess-simulation
+    id: bess
+    poll_interval: 1.0
+    port: 5520
+    timeout_s: 30
+  - host: trajectory-pv-simulation
     id: pv
-    poll_interval: 5
+    poll_interval: 1.0
     port: 5521
     timeout_s: 30
-  - id: psn
-    poll_interval: 60
-    psn_min_price_eur_per_mwh: 2.0
+  - id: trajectory
+    endpoint_url: http://server-spotapi:8080/api/v1/optimize
+    bess_capacity_kwh: 500.0
+    poll_interval: 900
     timeout_s: 30
-    url: http://server-spotapi:8000
 functions:
-  - id: psn
+  - id: follow_energy_trajectory
 logging:
   level: INFO
   log_dir: /data/ppc/logs
 server:
   host: localhost
-  port: 5020
+  port: 5022
